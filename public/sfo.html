@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="https://unpkg.com/konva@9.3.14/konva.min.js"></script>
+    <script src="https://unpkg.com/konva@9.3.15/konva.min.js"></script>
     <meta charset="utf-8" />
     <title>SFO Gates Guesser</title>
     <style>
@@ -17,130 +17,136 @@
 <body>
 <div id="container"></div>
 <script>
+    const NUM_QUESTIONS_PER_ROUND = 10;
+
+    const GATE_BACKGROUND_NORMAL = '#5e9bbc';
+    const GATE_BACKGROUND_CORRECT = '#8bbc5e';
+
     function writeMessage(message) {
         text.text(message);
     }
 
-    const gates = {
-        "A1": {x: 482, y: 485},
-        "A2": {x: 460, y: 530},
-        "A4": {x: 395, y: 554},
-        "A5": {x: 395, y: 582},
-        "A6": {x: 461, y: 573},
-        "A7": {x: 463, y: 598},
-        "A8": {x: 462, y: 621},
-        "A9": {x: 395, y: 614},
-        "A10": {x: 395, y: 665},
-        "A11": {x: 463, y: 656},
-        "A12": {x: 416, y: 696},
-        "A13": {x: 469, y: 680},
-        "A14": {x: 463, y: 700},
-        "A15": {x: 441, y: 700},
-        "B1": {x: 509, y: 482},
-        "B2": {x: 538, y: 481},
-        "B4": {x: 580, y: 477},
-        "B5": {x: 590, y: 493},
-        "B6": {x: 634, y: 425},
-        "B7": {x: 659, y: 426},
-        "B8": {x: 668, y: 447},
-        "B9": {x: 668, y: 469},
-        "B10": {x: 586, y: 515},
-        "B11": {x: 586, y: 538},
-        "B12": {x: 669, y: 495},
-        "B13": {x: 670, y: 518},
-        "B14": {x: 670, y: 542},
-        "B15": {x: 587, y: 565},
-        "B16": {x: 587, y: 587},
-        "B17": {x: 670, y: 565},
-        "B18": {x: 670, y: 589},
-        "B19": {x: 587, y: 613},
-        "B20": {x: 587, y: 635},
-        "B21": {x: 669, y: 615},
-        "B22": {x: 669, y: 639},
-        "B23": {x: 667, y: 660},
-        "B24": {x: 650, y: 674},
-        "B25": {x: 627, y: 675},
-        "B26": {x: 604, y: 673},
-        "B27": {x: 587, y: 661},
-        "C3": {x: 604, y: 288},
-        "C4": {x: 643, y: 356},
-        "C5": {x: 630, y: 288},
-        "C6": {x: 673, y: 356},
-        "C7": {x: 653, y: 288},
-        "C8": {x: 693, y: 351},
-        "C9": {x: 678, y: 288},
-        "C10": {x: 704, y: 329},
-        "C11": {x: 698, y: 305},
-        "D1": {x: 613, y: 237},
-        "D2": {x: 624, y: 219},
-        "D3": {x: 643, y: 211},
-        "D4": {x: 667, y: 212},
-        "D5": {x: 690, y: 204},
-        "D6": {x: 695, y: 177},
-        "D7": {x: 688, y: 158},
-        "D8": {x: 677, y: 133},
-        "D9": {x: 655, y: 113},
-        "D10": {x: 633, y: 92},
-        "D11": {x: 611, y: 91},
-        "D12": {x: 584, y: 96},
-        "D14": {x: 571, y: 123},
-        "D15": {x: 571, y: 147},
-        "D16": {x: 555, y: 184},
-        "E1": {x: 352, y: 176},
-        "E2": {x: 371, y: 188},
-        "E3": {x: 397, y: 186},
-        "E4": {x: 492, y: 187},
-        "E5": {x: 492, y: 165},
-        "E6": {x: 424, y: 178},
-        "E7": {x: 492, y: 143},
-        "E8": {x: 421, y: 151},
-        "E9": {x: 492, y: 118},
-        "E10": {x: 421, y: 125},
-        "E11": {x: 480, y: 94},
-        "E12": {x: 421, y: 100},
-        "E13": {x: 446, y: 94},
-        "F1": {x: 318, y: 321},
-        "F2": {x: 320, y: 299},
-        "F3": {x: 322, y: 275},
-        "F4": {x: 335, y: 249},
-        "F5": {x: 329, y: 154},
-        "F6": {x: 326, y: 132},
-        "F7": {x: 326, y: 113},
-        "F8": {x: 322, y: 93},
-        "F9": {x: 277, y: 101},
-        "F10": {x: 300, y: 87},
-        "F11": {x: 264, y: 134},
-        "F12": {x: 274, y: 200},
-        "F13": {x: 225, y: 142},
-        "F14": {x: 243, y: 200},
-        "F15": {x: 184, y: 142},
-        "F16": {x: 216, y: 203},
-        "F17": {x: 184, y: 205},
-        "F19": {x: 153, y: 206},
-        "F20": {x: 123, y: 183},
-        "F21": {x: 123, y: 155},
-        "F22": {x: 145, y: 142},
-        "G1": {x: 276, y: 338},
-        "G2": {x: 234, y: 338},
-        "G3": {x: 237, y: 410},
-        "G4": {x: 193, y: 408},
-        "G5": {x: 196, y: 340},
-        "G6": {x: 155, y: 341},
-        "G7": {x: 154, y: 408},
-        "G8": {x: 113, y: 408},
-        "G9": {x: 114, y: 342},
-        "G10": {x: 75, y: 349},
-        "G11": {x: 86, y: 410},
-        "G12": {x: 63, y: 406},
-        "G13": {x: 59, y: 381},
-    }
+    const gates = new Map([
+        ["A1", {x: 482, y: 485}],
+        ["A2", {x: 460, y: 530}],
+        ["A4", {x: 395, y: 554}],
+        ["A5", {x: 395, y: 582}],
+        ["A6", {x: 461, y: 573}],
+        ["A7", {x: 463, y: 598}],
+        ["A8", {x: 462, y: 621}],
+        ["A9", {x: 395, y: 614}],
+        ["A10", {x: 395, y: 665}],
+        ["A11", {x: 463, y: 656}],
+        ["A12", {x: 416, y: 696}],
+        ["A13", {x: 469, y: 680}],
+        ["A14", {x: 463, y: 700}],
+        ["A15", {x: 441, y: 700}],
+        ["B1", {x: 509, y: 482}],
+        ["B2", {x: 538, y: 481}],
+        ["B4", {x: 580, y: 477}],
+        ["B5", {x: 590, y: 493}],
+        ["B6", {x: 634, y: 425}],
+        ["B7", {x: 659, y: 426}],
+        ["B8", {x: 668, y: 447}],
+        ["B9", {x: 668, y: 469}],
+        ["B10", {x: 586, y: 515}],
+        ["B11", {x: 586, y: 538}],
+        ["B12", {x: 669, y: 495}],
+        ["B13", {x: 670, y: 518}],
+        ["B14", {x: 670, y: 542}],
+        ["B15", {x: 587, y: 565}],
+        ["B16", {x: 587, y: 587}],
+        ["B17", {x: 670, y: 565}],
+        ["B18", {x: 670, y: 589}],
+        ["B19", {x: 587, y: 613}],
+        ["B20", {x: 587, y: 635}],
+        ["B21", {x: 669, y: 615}],
+        ["B22", {x: 669, y: 639}],
+        ["B23", {x: 667, y: 660}],
+        ["B24", {x: 650, y: 674}],
+        ["B25", {x: 627, y: 675}],
+        ["B26", {x: 604, y: 673}],
+        ["B27", {x: 587, y: 661}],
+        ["C3", {x: 604, y: 288}],
+        ["C4", {x: 643, y: 356}],
+        ["C5", {x: 630, y: 288}],
+        ["C6", {x: 673, y: 356}],
+        ["C7", {x: 653, y: 288}],
+        ["C8", {x: 693, y: 351}],
+        ["C9", {x: 678, y: 288}],
+        ["C10", {x: 704, y: 329}],
+        ["C11", {x: 698, y: 305}],
+        ["D1", {x: 613, y: 237}],
+        ["D2", {x: 624, y: 219}],
+        ["D3", {x: 643, y: 211}],
+        ["D4", {x: 667, y: 212}],
+        ["D5", {x: 690, y: 204}],
+        ["D6", {x: 695, y: 177}],
+        ["D7", {x: 688, y: 158}],
+        ["D8", {x: 677, y: 133}],
+        ["D9", {x: 655, y: 113}],
+        ["D10", {x: 633, y: 92}],
+        ["D11", {x: 611, y: 91}],
+        ["D12", {x: 584, y: 96}],
+        ["D14", {x: 571, y: 123}],
+        ["D15", {x: 571, y: 147}],
+        ["D16", {x: 555, y: 184}],
+        ["E1", {x: 352, y: 176}],
+        ["E2", {x: 371, y: 188}],
+        ["E3", {x: 397, y: 186}],
+        ["E4", {x: 492, y: 187}],
+        ["E5", {x: 492, y: 165}],
+        ["E6", {x: 424, y: 178}],
+        ["E7", {x: 492, y: 143}],
+        ["E8", {x: 421, y: 151}],
+        ["E9", {x: 492, y: 118}],
+        ["E10", {x: 421, y: 125}],
+        ["E11", {x: 480, y: 94}],
+        ["E12", {x: 421, y: 100}],
+        ["E13", {x: 446, y: 94}],
+        ["F1", {x: 318, y: 321}],
+        ["F2", {x: 320, y: 299}],
+        ["F3", {x: 322, y: 275}],
+        ["F4", {x: 335, y: 249}],
+        ["F5", {x: 329, y: 154}],
+        ["F6", {x: 326, y: 132}],
+        ["F7", {x: 326, y: 113}],
+        ["F8", {x: 322, y: 93}],
+        ["F9", {x: 277, y: 101}],
+        ["F10", {x: 300, y: 87}],
+        ["F11", {x: 264, y: 134}],
+        ["F12", {x: 274, y: 200}],
+        ["F13", {x: 225, y: 142}],
+        ["F14", {x: 243, y: 200}],
+        ["F15", {x: 184, y: 142}],
+        ["F16", {x: 216, y: 203}],
+        ["F17", {x: 184, y: 205}],
+        ["F19", {x: 153, y: 206}],
+        ["F20", {x: 123, y: 183}],
+        ["F21", {x: 123, y: 155}],
+        ["F22", {x: 145, y: 142}],
+        ["G1", {x: 276, y: 338}],
+        ["G2", {x: 234, y: 338}],
+        ["G3", {x: 237, y: 410}],
+        ["G4", {x: 193, y: 408}],
+        ["G5", {x: 196, y: 340}],
+        ["G6", {x: 155, y: 341}],
+        ["G7", {x: 154, y: 408}],
+        ["G8", {x: 113, y: 408}],
+        ["G9", {x: 114, y: 342}],
+        ["G10", {x: 75, y: 349}],
+        ["G11", {x: 86, y: 410}],
+        ["G12", {x: 63, y: 406}],
+        ["G13", {x: 59, y: 381}],
+    ]);
 
-    const konvaGates = {}
+    const konvaGates = new Map();
     let konvaLastGateClicked = null;
     let konvaLastGateDesired = null;
 
     let numCorrect = 0
     let numWrong = 0
+    let gateClickAllowed = true;
 
     const stage = new Konva.Stage({
         container: 'container',
@@ -150,28 +156,26 @@
 
     const backgroundLayer = new Konva.Layer();
     stage.add(backgroundLayer);
-    const imageObj = new Image();
-    imageObj.onload = function () {
-        var yoda = new Konva.Image({
+    const sfoBaseImgObj = new Image();
+    sfoBaseImgObj.onload = function () {
+        // add the shape to the layer
+        backgroundLayer.add(new Konva.Image({
             x: 0,
             y: 0,
-            image: imageObj,
-        });
-
-        // add the shape to the layer
-        backgroundLayer.add(yoda);
+            image: sfoBaseImgObj,
+        }));
     };
-    imageObj.src = 'imgs/SFO_base.png';
+    sfoBaseImgObj.src = 'imgs/SFO_base.png';
 
-    const uilayer = new Konva.Layer();
-    const uibackRect = new Konva.Rect( {
+    const scoreLayer = new Konva.Layer();
+    const scoreBackRect = new Konva.Rect( {
         x: 13,
         y: 486,
         width: 300,
         height: 250,
         fill: 'green',
     });
-    uilayer.add(uibackRect);
+    scoreLayer.add(scoreBackRect);
     const gate_label_text = new Konva.Text({
         x: 33,
         y: 496,
@@ -180,7 +184,7 @@
         text: 'Gate',
         fill: 'black',
     });
-    uilayer.add(gate_label_text)
+    scoreLayer.add(gate_label_text)
 
     const gate_text = new Konva.Text({
         x: 103,
@@ -190,7 +194,7 @@
         text: 'D8',
         fill: 'black',
     });
-    uilayer.add(gate_text)
+    scoreLayer.add(gate_text)
 
     const last_gate_label_text = new Konva.Text({
         x: 33,
@@ -200,7 +204,7 @@
         text: 'Last gate clicked',
         fill: 'black',
     });
-    uilayer.add(last_gate_label_text);
+    scoreLayer.add(last_gate_label_text);
 
     const last_gate_text = new Konva.Text({
         x: 230,
@@ -210,7 +214,7 @@
         text: '',
         fill: 'black',
     });
-    uilayer.add(last_gate_text);
+    scoreLayer.add(last_gate_text);
 
     const num_correct_label_text = new Konva.Text({
         x: 33,
@@ -220,7 +224,7 @@
         text: 'Num correct',
         fill: 'black',
     });
-    uilayer.add(num_correct_label_text);
+    scoreLayer.add(num_correct_label_text);
 
     const num_correct_text = new Konva.Text({
         x: 200,
@@ -230,29 +234,9 @@
         text: '',
         fill: 'black',
     });
-    uilayer.add(num_correct_text);
+    scoreLayer.add(num_correct_text);
 
-    // const num_wrong_label_text = new Konva.Text({
-    //     x: 33,
-    //     y: 680,
-    //     fontFamily: 'Calibri',
-    //     fontSize: 24,
-    //     text: 'Num wrong',
-    //     fill: 'black',
-    // });
-    // uilayer.add(num_wrong_label_text);
-    //
-    // const num_wrong_text = new Konva.Text({
-    //     x: 200,
-    //     y: 680,
-    //     fontFamily: 'Calibri',
-    //     fontSize: 24,
-    //     text: '0',
-    //     fill: 'black',
-    // });
-    // uilayer.add(num_wrong_text);
-
-    stage.add(uilayer);
+    stage.add(scoreLayer);
 
     const layer = new Konva.Layer();
 
@@ -266,7 +250,7 @@
     });
 
     function newGate() {
-        const gateNames = Object.keys(gates).filter(curGate => ['B', 'C', 'D', 'E', 'F'].includes(curGate.slice(0, 1)));
+        const gateNames = Array.from(gates.keys()).filter(curGate => ['B', 'C', 'D', 'E', 'F'].includes(curGate.slice(0, 1)));
         let nextGate = gateNames[Math.floor(Math.random() * gateNames.length)];
 
         gate_text.text(nextGate);
@@ -276,7 +260,6 @@
     let desiredGate = newGate();
 
     function gateClickHandler(gateName) {
-        // debugger;
         // Return previous clicked gate to normal background
         if (konvaLastGateClicked) {
             konvaLastGateClicked.fill("#5e9bbc");
@@ -286,64 +269,169 @@
             konvaLastGateDesired.fill("#5e9bbc");
         }
 
-        konvaLastGateClicked = konvaGates[gateName];
+        konvaLastGateClicked = konvaGates.get(gateName);
 
         if (gateName === desiredGate) {
             // Set status of the gate that was just clicked;
-            konvaLastGateClicked.fill("#8bbc5e");
+            konvaLastGateClicked.fill(GATE_BACKGROUND_CORRECT);
             konvaLastGateDesired = null;
             numCorrect++;
         } else {
             konvaLastGateClicked.fill("#e32626");
-            konvaLastGateDesired = konvaGates[desiredGate];
-            konvaLastGateDesired.fill("#8bbc5e");
+            konvaLastGateDesired = konvaGates.get(desiredGate);
+            konvaLastGateDesired.fill(GATE_BACKGROUND_CORRECT);
             numWrong++;
         }
 
         last_gate_text.text(gateName);
         num_correct_text.text(`${numCorrect} / ${numCorrect + numWrong}`);
-        desiredGate = newGate();
+
+        if (numWrong + numCorrect === NUM_QUESTIONS_PER_ROUND) {
+            gameOver();
+        } else {
+            desiredGate = newGate();
+        }
     }
 
-    for (const [gatename, gatepos] of Object.entries(gates)) {
-       const dot = new Konva.Circle({
-           x: gatepos.x,
-           y: gatepos.y,
+    function gameOver() {
+        game_over_score_text.text(Math.round(numCorrect / (numWrong + numCorrect) * 100) + "%");
+        finalScoreLayer.show();
+        gameOverNotif.show();
+        game_over_play_again_btn.show();
+        gateClickAllowed = false;
+    }
+
+    function reset() {
+        numCorrect = 0;
+        numWrong = 0;
+        gateClickAllowed = true;
+        desiredGate = newGate();
+        last_gate_text.text("");
+        finalScoreLayer.hide();
+
+        for (const cur_gate_dot of konvaGates.values()) {
+          cur_gate_dot.fill(GATE_BACKGROUND_NORMAL);
+        }
+    }
+
+    for (const [gateName, gatePos] of gates.entries()) {
+       const gateDot = new Konva.Circle({
+           x: gatePos.x,
+           y: gatePos.y,
            radius: 10,
-           fill: '#5e9bbc',
+           fill: GATE_BACKGROUND_NORMAL,
            stroke: 'black',
            strokeWidth: 1,
        });
 
-       dot.on('click', () => {
-           gateClickHandler(gatename);
-           writeMessage(`${gatename} was clicked!`)
-       })
-       konvaGates[gatename] = dot;
-       layer.add(dot);
+       gateDot.on('click', () => {
+         if (gateClickAllowed) {
+           gateClickHandler(gateName);
+         }
+
+         // writeMessage(`${gatename} was clicked!`)
+       });
+       konvaGates.set(gateName, gateDot);
+       layer.add(gateDot);
     }
 
     const circle = new Konva.Circle({
         x: 230,
         y: 100,
         radius: 10,
-        fill: '#8bbc5e',
+        fill: GATE_BACKGROUND_CORRECT,
         stroke: 'black',
         strokeWidth: 1,
         draggable: true,
     });
 
     circle.on('dragmove', () => {
-        // const mousePos = stage.getPointerPosition();
         const circlePos = circle.getAbsolutePosition();
         writeMessage('x: ' + circlePos.x + ', y: ' + circlePos.y);
     });
 
+    // Uncomment to get coordinates of dot
     // layer.add(circle);
     layer.add(text);
 
     // add the layer to the stage
     stage.add(layer);
+
+    const gameOverNotif = new Konva.Label({
+        x: 33,
+        y: 20,
+        visible: false,
+    });
+
+    gameOverNotif.add(new Konva.Tag({
+        fill: '#2d8bca',
+    }));
+
+    gameOverNotif.add(new Konva.Text({
+        text: 'Game Over!',
+        fontSize: 28,
+        padding: 15,
+    }));
+    layer.add(gameOverNotif);
+
+    const finalScoreLayer = new Konva.Layer({
+        visible: false,
+    });
+
+    const game_over_score_label_text = new Konva.Text({
+        x: 33,
+        y: 685,
+        fontFamily: 'Calibri',
+        fontSize: 24,
+        text: 'Final Score: ',
+        fill: 'black',
+    });
+    finalScoreLayer.add(game_over_score_label_text);
+
+    const game_over_score_text = new Konva.Text({
+        x: 160,
+        y: 685,
+        fontFamily: 'Calibri',
+        fontSize: 24,
+        text: '0',
+        fill: 'black',
+    });
+    finalScoreLayer.add(game_over_score_text);
+    stage.add(finalScoreLayer);
+
+    // const game_over_play_again_btn = new Konva.Rect({
+    //   x: 370,
+    //   y: 190,
+    //   width: 75,
+    //   height: 22,
+    //   fill: '#6bcd4b',
+    // });
+
+    const game_over_play_again_btn = new Konva.Label({
+        x: 575,
+        y: 720,
+        visible: false,
+    });
+    layer.add(game_over_play_again_btn);
+
+    game_over_play_again_btn.add(new Konva.Tag({
+        fill: '#6bcd4b',
+    }));
+
+    game_over_play_again_btn.add(new Konva.Text({
+        text: 'Play Again!',
+        fontSize: 18,
+        fill: '#000000',
+        padding: 15,
+    }));
+
+    game_over_play_again_btn.on('click', () => {
+        reset();
+        writeMessage("reset");
+        gameOverNotif.hide();
+        game_over_play_again_btn.hide();
+    })
+    stage.add(gameOverLayer);
 </script>
 </body>
 </html>
